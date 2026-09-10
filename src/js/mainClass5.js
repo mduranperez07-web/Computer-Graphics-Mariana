@@ -34,125 +34,164 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-// =========================================================
-// TODO: CONSTRUIR LA RUEDA DE LA FORTUNA
-// =========================================================
+const isWireframe = false;
+
+// 3. ESTRUCTURA DE SOPORTE (PATAS)
 const shapesData = [
-    {
-        name: 'pata 1',
-                geometry: new THREE.CylinderGeometry(0.5, 0.5, 4, 32 ),    
-                color: 0xffbf00,
-                posX: -3,
-                posY: 4,
-                posZ: 1.5
-    },
-    {
-        name: 'pata 2',
-                geometry: new THREE.CylinderGeometry(1, 1, 4, 32 ),    
-                color: 0xffbf00,
-                posX: 3,
-                posY: 4,   
-                posZ: 1.5
-    },
-    {
-        name: 'pata 3',
-                geometry: new THREE.CylinderGeometry(1, 1, 4, 32 ),    
-                color: 0xffbf00,
-                posX: -4, 
-                posY: 4,   
-                posZ: -1.5 
-    },
-    {
-        name: 'pata 4',
-                geometry: new THREE.CylinderGeometry(1, 1, 4, 32 ),    
-                color: 0xffbf00,
-                posX: 4,
-                posY: 4,   
-                posZ: -1.5
-    },
-    {
-        name: 'esfera',
-                geometry: new THREE.SphereGeometry(0.5, 20, 20 ),    
-                color: 0xffbf00,
-                posX : 0,
-                posY : 7,
-    },
-]
-shapesData.forEach( ( shapeData ) => {
-    const material = new THREE.MeshStandardMaterial( { color: shapeData.color, wireframe: isWireframe, roughness: 0.3, metalness: 0.2} );
-    const mesh = new THREE.Mesh( shapeData.geometry, material );
-    mesh.position.x = shapeData.posX;
-    mesh.position.x = shapeData.posY;
-    mesh.position.x = shapeData.posZ;
-    scene.add( mesh );
-    mesh.castShadow = true;
-} );
-// En esta seccion, debes crear la rueda de la fortuna utilizando geometrías y materiales de Three.js. 
+  {
+    name: 'pata 1',
+    geometry: new THREE.CylinderGeometry(0.3, 0.5, 12, 32),
+    color: 0x81B063,
+    posX: -3,
+    posY: 5,
+    posZ: 1.5,
+    rotZ: -0.35
+  },
+  {
+    name: 'pata 2',
+    geometry: new THREE.CylinderGeometry(0.3, 0.5, 12, 32),
+    color: 0x81B063,
+    posX: 3,
+    posY: 5,
+    posZ: 1.5,
+    rotZ: 0.35
+  },
+  {
+    name: 'pata 3',
+    geometry: new THREE.CylinderGeometry(0.3, 0.5, 12, 32),
+    color: 0x81B063,
+    posX: -3,
+    posY: 5,
+    posZ: -1.5,
+    rotZ: -0.3
+  },
+  {
+    name: 'pata 4',
+    geometry: new THREE.CylinderGeometry(0.3, 0.5, 12, 32),
+    color: 0x81B063,
+    posX: 3,
+    posY: 5,
+    posZ: -1.5,
+    rotZ: 0.3
+  },
+  {
+    name: 'eje central',
+    geometry: new THREE.CylinderGeometry(0.4, 0.4, 3.5, 32),
+    color: 0xffbf00,
+    posX: 0,
+    posY: 10.5,
+    posZ: 0,
+    rotX: Math.PI / 2
+  }
+];
+
+shapesData.forEach((shapeData) => {
+  const material = new THREE.MeshStandardMaterial({
+    color: shapeData.color,
+    wireframe: isWireframe,
+    roughness: 0.3,
+    metalness: 0.2
+  });
+  const mesh = new THREE.Mesh(shapeData.geometry, material);
+  mesh.position.set(shapeData.posX, shapeData.posY, shapeData.posZ);
+
+  if (shapeData.rotZ) mesh.rotation.z = shapeData.rotZ;
+  if (shapeData.rotX) mesh.rotation.x = shapeData.rotX;
+
+  mesh.castShadow = true;
+  scene.add(mesh);
+});
+
+// 4. RUEDA DE LA FORTUNA
 const numCabinas = 8;
 const radioRueda = 6;
 const cabinas = [];
 
-
 const ruedaGroup = new THREE.Group();
-ruedaGroup.position.set (0,10.5,0);
+ruedaGroup.position.set(0, 10.5, 0);
 scene.add(ruedaGroup);
 
-const ruedaMaterial = new THREE.MeshStandardMaterial({ color: 0xc9a581, wireframe: isWireframe, roughness: 0.3, metalness: 0.2});
-const cabinasMaterial = new THREE.MeshStandardMaterial({ color: 0xc9a581, wireframe: isWireframe, roughness: 0.3, metalness: 0.2});
-const techoMaterial = new THREE.MeshStandardMaterial({ color: 0xc9a581, wireframe: isWireframe, roughness: 0.3, metalness: 0.2});
+// Materiales unificados
+const ruedaMaterial = new THREE.MeshStandardMaterial({ color: 0x6374B0, wireframe: isWireframe, roughness: 0.3, metalness: 0.2 });
+const aroMaterial = new THREE.MeshStandardMaterial({ color: 0xc6374B0, wireframe: isWireframe, roughness: 0.3, metalness: 0.2 });
+const cestaMaterial = new THREE.MeshStandardMaterial({ color: 0x6374B0, wireframe: isWireframe, roughness: 0.3, metalness: 0.1 });
+const techoMaterial = new THREE.MeshStandardMaterial({ color: 0x63B087, wireframe: isWireframe, roughness: 0.3, metalness: 0.1 });
 
-const aroGeometry = new THREE.TorusGeometry (0.15, 16, 64)
+// Aros exterior e interior (Frontal y Trasero)
+const aroGeometry = new THREE.TorusGeometry(radioRueda, 0.15, 16, 64);
 
-const aroAdelante = new THREE.Mesh( aroGeometry, aroMaterial );
-mesh.castShadow = true;
-ruedaGroup.add(aroFrontal);
+const aroAdelante = new THREE.Mesh(aroGeometry, aroMaterial);
+aroAdelante.position.z = 0.9;
+aroAdelante.castShadow = true;
+ruedaGroup.add(aroAdelante);
 
-
-const aroAtras = new THREE.Mesh( aroGeometry, aroMaterial );
-mesh.castShadow = true;
+const aroAtras = new THREE.Mesh(aroGeometry, aroMaterial);
+aroAtras.position.z = -0.9;
+aroAtras.castShadow = true;
 ruedaGroup.add(aroAtras);
 
-const radioGeometry = new THREE.CylinderGeometry (0.1, 0.1, );
+// Geometry de los radios (Estructura interna)
+const radioGeometry = new THREE.CylinderGeometry(0.08, 0.08, radioRueda * 2, 16);
 
+for (let i = 0; i < numCabinas; i++) {
+  const angulo = (i * Math.PI * 2) / numCabinas;
 
-const radioAdelante = new THREE.Mesh(radioGeometry, ruedaMaterial);
-    radioAdelante.rotation.z = angulo;
-    radioAdelante.position.z = 0.8;
-    ruedaGroup.add(radioAdelante);
+  // Radios frontales y traseros
+  const radioAdelante = new THREE.Mesh(radioGeometry, ruedaMaterial);
+  radioAdelante.rotation.z = angulo;
+  radioAdelante.position.z = 0.9;
+  radioAdelante.castShadow = true;
+  ruedaGroup.add(radioAdelante);
 
-// Loop de Animación
-let velocidadGiro = 0.01;
+  const radioTrasero = new THREE.Mesh(radioGeometry, ruedaMaterial);
+  radioTrasero.rotation.z = angulo;
+  radioTrasero.position.z = -0.9;
+  radioTrasero.castShadow = true;
+  ruedaGroup.add(radioTrasero);
 
-const techo = new THREE.Mesh(new THREE.ConeGeometry(0.9, 0.8, 4), matTecho);
-    techo.position.y = 0.5;
-    techo.rotation.y = Math.PI / 4;
-    techo.castShadow = true;
-    cabinaPivot.add(techo);
+  // Pivote para cada cabina (Mantiene la góndola vertical durante la rotación)
+  const cabinaPivot = new THREE.Group();
+  cabinaPivot.position.x = Math.cos(angulo) * radioRueda;
+  cabinaPivot.position.y = Math.sin(angulo) * radioRueda;
 
-    ruedaGroup.add(cabinaPivot);
-    cabinas.push(cabinaPivot); // Para la contra-rotación
+  const cesta = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 1.2), cestaMaterial);
+  cesta.position.y = -0.4;
+  cesta.castShadow = true;
+  cabinaPivot.add(cesta);
+
+  const techo = new THREE.Mesh(new THREE.ConeGeometry(0.9, 0.8, 4), techoMaterial);
+  techo.position.y = 0.5;
+  techo.rotation.y = Math.PI / 4;
+  techo.castShadow = true;
+  cabinaPivot.add(techo);
+
+  ruedaGroup.add(cabinaPivot);
+  cabinas.push(cabinaPivot);
 }
 
-
+// 5. ANIMACIÓN Y RENDER LOOP
+const velocidadGiro = 0.01;
 
 function animate() {
-    requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 
-    // Aqui colocar el codigo de Rotación de la rueda
-        ruedaGroup.rotation.z += velocidadGiro;
+  // Rotación general del grupo de la rueda
+  ruedaGroup.rotation.z += velocidadGiro;
 
-        cabinas.forEach((cabina) => {
-        cabina.rotation.z = -ruedaGroup.rotation.z;
-    });
+  // Contra-rotación de las cabinas para mantener la gravedad vertical
+  cabinas.forEach((cabina) => {
+    cabina.rotation.z = -ruedaGroup.rotation.z;
+  });
 
-    controls.update();
-    renderer.render(scene, camera);
+  controls.update();
+  renderer.render(scene, camera);
 }
 
 animate();
 
+// Ajuste dinámico de ventana
 window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
